@@ -1,12 +1,6 @@
 // Autor: Ingmar Stapel
 // Homepage: https://custom-build-robots.com/
-// Date: 2020-04-19
-//
-// Rewritten for ESP32 with improvements by Gemini
-// - Replaced SoftwareSerial with HardwareSerial for better stability on ESP32.
-// - Restructured the main loop for more efficient display updates.
-// - Added a check for missing GPS signal to aid in debugging.
-// - Centralized pin configuration.
+// Date: 2025-06-03
 
 #include <TinyGPS++.h>
 #include <Wire.h>
