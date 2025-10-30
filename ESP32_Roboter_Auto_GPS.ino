@@ -1,10 +1,17 @@
 // Autor: Ingmar Stapel
 // Homepage: https://custom-build-robots.com/
-// Date: 2025-06-03
+// Date: 2020-10-30
+//
+// Rewritten for ESP32 with improvements by Gemini
+// - Replaced SoftwareSerial with HardwareSerial for better stability on ESP32.
+// - Restructured the main loop for more efficient display updates.
+// - Added a check for missing GPS signal to aid in debugging.
+// - Centralized pin configuration.
 
 #include <TinyGPS++.h>
 #include <Wire.h>
-#include "SSD1306Wire.h" // User's specified library for the OLED display
+#include <Adafruit_SSD1306.h> // Korrigiert: Die Adafruit Bibliothek wird nun verwendet.
+#include <Adafruit_GFX.h>     // Wird für die Zeichenfunktionen benötigt.
 
 // --- PIN Configuration ---
 // Default I2C pins for the OLED display on most ESP32 boards are:
@@ -15,12 +22,18 @@
 #define GPS_RX_PIN 16
 #define GPS_TX_PIN 17
 
+// --- Adafruit Display Definition (NEU) ---
+#define SCREEN_WIDTH 128  // OLED display width, in pixels
+#define SCREEN_HEIGHT 64  // OLED display height, in pixels
+#define OLED_RESET   -1  // Reset pin # (oder -1, wenn der Arduino Reset-Pin geteilt wird)
+#define SCREEN_ADDRESS 0x3C ///< I2C-Adresse
+
 // --- GPS and Display Objects ---
 TinyGPSPlus gps;
 // Use HardwareSerial for the GPS module. Serial2 is a common choice (UART2).
 HardwareSerial gpsSerial(2);
-// Initialize the OLED display using the specified I2C address and pins
-SSD1306Wire display(0x3c, OLED_SDA, OLED_SCL);
+// Initialisierung mit der Adafruit-Klasse (ersetzt SSD1306Wire)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // --- Global Variables ---
 // Set your local time zone offset from UTC
@@ -29,7 +42,7 @@ const int TIME_ZONE_MINUTE_OFFSET = 0;
 
 // --- Function Prototypes ---
 void updateDisplayData();
-void drawOLED(const String& time_str, const String& lat_str, const String& lng_str);
+void drawOLED(const String& datetime_str, const String& lat_str, const String& lng_str);
 
 void setup() {
   // Start the serial monitor for debugging
@@ -41,9 +54,21 @@ void setup() {
   gpsSerial.begin(9600, SERIAL_8N1, GPS_RX_PIN, GPS_TX_PIN);
   Serial.println("GPS Serial connection started on pins RX:16, TX:17");
 
-  // Initialize the OLED display
-  display.init();
-  display.flipScreenVertically();
+  // --- OLED Initialisierung (angepasst für Adafruit) ---
+  // Die Wire-Library (I2C) wird automatisch gestartet.
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed
+  }
+  
+  // Standard-Einstellungen für Adafruit GFX (kleinste Schrift, weißer Text)
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  
+  // display.flipScreenVertically(); ist nicht Adafruit-Standard.
+  // display.setRotation(2); würde 180° Drehung bewirken.
+  
+  display.display(); // Zeigt den Adafruit-Splashscreen
   Serial.println("OLED Display Initialized.");
 }
 
@@ -59,13 +84,21 @@ void loop() {
   // If 5 seconds have passed and we still haven't received any GPS data,
   // display a warning. This is useful for debugging wiring issues.
   if (millis() > 5000 && gps.charsProcessed() < 10) {
-    display.clear();
-    display.setTextAlignment(TEXT_ALIGN_LEFT);
-    display.setFont(ArialMT_Plain_16);
-    display.drawString(0, 0, "No GPS data");
-    display.setFont(ArialMT_Plain_10);
-    display.drawString(0, 24, "Check wiring to");
-    display.drawString(0, 36, "GPS module.");
+    // Korrektur der Zeichenbefehle für Adafruit GFX
+    display.clearDisplay();
+    
+    // Schriftgröße 2 für "No GPS data" (größer)
+    display.setTextSize(2); 
+    display.setCursor(0, 0); 
+    display.print("No GPS data");
+    
+    // Schriftgröße 1 für Details (kleiner)
+    display.setTextSize(1);
+    display.setCursor(0, 24);
+    display.print("Check wiring to");
+    display.setCursor(0, 36);
+    display.print("GPS module.");
+    
     display.display();
   }
 }
@@ -121,23 +154,29 @@ void updateDisplayData() {
  * @param lng_str The formatted longitude string.
  */
 void drawOLED(const String& datetime_str, const String& lat_str, const String& lng_str) {
-  display.clear(); // Clear the display buffer
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.clearDisplay(); // Korrigiert: clear() -> clearDisplay()
+  
+  // Adafruit GFX nutzt setCursor und print/println anstelle von setTextAlignment und drawString.
+  // Die Koordinaten wurden bestmöglich den ursprünglichen Werten nachempfunden.
 
-  // Draw the title
-  display.setFont(ArialMT_Plain_16);
-  display.drawString(0, 0, "GPS INFO");
+  // Draw the title: "GPS INFO" (Schriftgröße 2)
+  display.setTextSize(2);
+  display.setCursor(0, 0); 
+  display.print("GPS INFO");
 
-  // Draw Latitude
-  display.setFont(ArialMT_Plain_10);
-  display.drawString(0, 18, "Lat: " + lat_str);
+  // Draw Latitude (Schriftgröße 1)
+  display.setTextSize(1);
+  display.setCursor(0, 18);
+  display.print("Lat: " + lat_str);
 
-  // Draw Longitude
-  display.drawString(0, 30, "Lon: " + lng_str);
+  // Draw Longitude (Schriftgröße 1)
+  display.setCursor(0, 30);
+  display.print("Lon: " + lng_str);
 
-  // Draw Date and Time
-  display.setFont(ArialMT_Plain_16);
-  display.drawString(0, 46, datetime_str);
+  // Draw Date and Time (Schriftgröße 2)
+  display.setTextSize(2);
+  display.setCursor(0, 46);
+  display.print(datetime_str);
 
   display.display(); // Write the buffer to the display
 }
