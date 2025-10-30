@@ -1,8 +1,8 @@
 /***************************************************
  * Author: Ingmar Stapel
  * Website: www.custom-build-robots.com
- * Date: 2025-05-23
- * Version: 1.9 
+ * Date: 2025-10-30
+ * Version: 2.0 
  * Description:
  * This program enables your ESP32-based robot car to be
  * controlled via a PlayStation 4/5 controller using the
@@ -12,14 +12,21 @@
  ****************************************************/
 
 #include <WiFi.h>
-#include "SSD1306Wire.h" // For OLED display
+#include <Adafruit_SSD1306.h> // For OLED display
 #include <Bluepad32.h>   // Include Bluepad32 library
 #include <Adafruit_NeoPixel.h> // For WS2812 LEDs
 
 // ----------------------------
-// Initialize the OLED display using Wire library
+// Adafruit Display Definition (NEU)
 // ----------------------------
-SSD1306Wire display(0x3c, 21, 22); // SDA=21, SCL=22 for ESP32
+#define SCREEN_WIDTH 128  // OLED display width, in pixels
+#define SCREEN_HEIGHT 64  // OLED display height, in pixels
+#define OLED_RESET   -1  // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< I2C-Adresse (häufig 0x3C oder 0x3D)
+
+// Das Display-Objekt mit der Adafruit-Klasse erstellen:
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
 
 // ----------------------------
 // GPIO Pin Definitions for L298N Motor Driver INx lines
@@ -98,9 +105,18 @@ const int DEADZONE = 10;
 ControllerPtr myControllers[BP32_MAX_GAMEPADS];
 
 void updateDisplayStatus() {
-  display.clear();
-  display.drawString(0, 0, ROBOT_NAME);
-  display.drawString(0, 10, String("LED: ") + ledModeName(currentLedMode));
+  // Anpassung für Adafruit: clear() -> clearDisplay(), Text wird mit setCursor und print/println geschrieben
+  display.clearDisplay(); 
+  display.setCursor(0, 0);
+
+  // Zeile 1: Name des Roboters
+  display.print(ROBOT_NAME);
+
+  // Zeile 2: LED Modus (Cursor auf Y=10)
+  display.setCursor(0, 10);
+  display.print("LED: " + ledModeName(currentLedMode));
+  
+  // Controller Status
   bool controllerConnected = false;
   for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
     if (myControllers[i] && myControllers[i]->isConnected()) {
@@ -108,13 +124,20 @@ void updateDisplayStatus() {
         break;
     }
   }
+
+  // Zeile 3: Controller Status (Cursor auf Y=20)
+  display.setCursor(0, 20);
   if (controllerConnected){
-    display.drawString(0, 20, "Ctrl Connected");
+    display.print("Ctrl Connected");
   } else {
-    display.drawString(0, 20, "Ctrl Disconnected");
+    display.print("Ctrl Disconnected");
   }
-  display.drawString(0, 30, "L:" + String(speed_left) + "% R:" + String(speed_right) + "%");
-  display.display();
+  
+  // Zeile 4: Motorgeschwindigkeiten (Cursor auf Y=30)
+  display.setCursor(0, 30);
+  display.print("L:" + String(speed_left) + "% R:" + String(speed_right) + "%");
+  
+  display.display(); // Zeigt den Puffer auf dem Display an
 }
 
 // ----------------------------
@@ -241,8 +264,22 @@ void setup() {
   Serial.println("Initializing Robot Car Control (PWM on INx, ENA/ENB Jumpered HIGH)...");
 
   Serial.println("Initializing OLED Display");
-  display.init();
-  display.setFont(ArialMT_Plain_10);
+
+  // Adafruit Display Initialisierung
+  // SSD1306_SWITCHCAPVCC = erzeugt die Display-Spannung intern aus 3.3V
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  }
+ 
+  // NEUE ANPASSUNG: Display um 180 Grad drehen
+  display.setRotation(2); // 0 = keine Drehung, 1 = 90°, 2 = 180°, 3 = 270°
+ 
+  // Adafruit GFX Texteinstellungen
+  // NEUE ANPASSUNG: Textgröße auf die kleinste Stufe (1) setzen
+  display.setTextSize(1);             // Normale 1:1 Pixel-Skalierung
+  display.setTextColor(SSD1306_WHITE);        // Weißen Text zeichnen
+
   updateDisplayStatus(); // Initial display
 
   Serial.println("Initializing Motor INx pins for PWM control...");
@@ -253,8 +290,6 @@ void setup() {
   ledcSetup(MOTOR_RIGHT_IN4_PWM_CHANNEL, PWM_MOTOR_FREQUENCY, PWM_MOTOR_RESOLUTION);
 
   // Attach PWM channels to the INx GPIO pins
-  // pinMode calls are not strictly necessary for pins used with ledcAttachPin,
-  // as ledcAttachPin configures the pin as an output.
   ledcAttachPin(MOTOR_LEFT_IN1_GPIO, MOTOR_LEFT_IN1_PWM_CHANNEL);
   ledcAttachPin(MOTOR_LEFT_IN2_GPIO, MOTOR_LEFT_IN2_PWM_CHANNEL);
   ledcAttachPin(MOTOR_RIGHT_IN3_GPIO, MOTOR_RIGHT_IN3_PWM_CHANNEL);
@@ -270,9 +305,12 @@ void setup() {
   // BP32.forgetBluetoothKeys(); // Uncomment for development if needed
   BP32.enableVirtualDevice(false);
 
-  display.clear();
-  display.drawString(0, 0, ROBOT_NAME);
-  display.drawString(0, 20, "Waiting for Controller");
+  // Initialer Bildschirm (angepasst für Adafruit)
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.print(ROBOT_NAME);    
+  display.setCursor(0, 20);
+  display.print("Waiting for Controller"); 
   display.display();
   Serial.println("Setup complete. Waiting for controller...");
 
