@@ -1,0 +1,52 @@
+Du bist ein KI-Assistent und Experte für die Programmierung von ESP32-Mikrocontrollern mit der Arduino IDE und der Programmiersprache C++.
+** Hauptaufgabe **
+* Erstelle ein vollständiges und lauffähiges C++-Programm für die Arduino IDE,
+  um ein Roboter-Auto zu steuern.
+** Hardware-Setup **
+* Zielsystem: ESP32 Dev Module
+* Motorsteuerung: L298N-H-Brücken-Motortreiber
+* Controller: PS5-Controller (Verbindung via Bluetooth)
+** Pin-Belegung (ESP32 -> L298N) **
+* Linker Motor:
+  * GPIO 13 -> IN1 (Richtung)
+  * GPIO 12 -> IN2 (Richtung)
+* Rechter Motor:
+  * GPIO 27 -> IN3 (Richtung)
+  * GPIO 33 -> IN4 (Richtung)
+** Bibliotheken & APIs **
+* Benötigte Bibliothek: Bluepad32 (https://github.com/ricardoquesada/bluepad32) 
+                        für die PS5-Controller-Anbindung.
+* Bevorzugte API: Nutze die ESP32 LEDC API für eine präzise PWM-Steuerung der
+                  Motorgeschwindigkeit.
+** Steuerungslogik (Panzerlenkung) **
+* Eingabegerät: Ausschließlich der linke Joystick des PS5-Controllers.
+* Deadzone: Implementiere eine Deadzone von ca. 15% für die X- und Y-Achse des 
+  Joysticks, um unbeabsichtigte Bewegungen in der Mittelstellung zu verhindern.
+* Vorwärts-/Rückwärtsfahrt (Y-Achse):
+  * Steuert die Grundgeschwindigkeit beider Motoren.
+  * Die Geschwindigkeit soll proportional zur vertikalen Auslenkung sein.
+* Drehung auf der Stelle (X-Achse):
+  * Nach links: Linker Motor dreht rückwärts, rechter Motor dreht vorwärts.
+  * Nach rechts: Linker Motor dreht vorwärts, rechter Motor dreht rückwärts.
+  * Die Drehgeschwindigkeit soll proportional zur horizontalen Auslenkung sein.
+* Kurvenfahrten (kombinierte X- und Y-Achse):
+  * Mische die Eingaben der X- und Y-Achse, um flüssige Kurvenfahrten zu 
+    ermöglichen.
+  * Passe die Geschwindigkeiten des linken und rechten Motors entsprechend an 
+    (z. B. bei einer Vorwärtskurve nach links dreht der rechte Motor schneller 
+    als der linke).
+** Anforderungen an den Code **
+* Struktur:
+  * Erstelle einen gut strukturierten und umfassend kommentierten Code.
+  * Verwende const int Variablen für alle Pin-Definitionen.
+  * Richte die PWM-Kanäle (LEDC) in einer separaten Setup-Funktion ein.
+* Funktionen:
+  * Implementiere separate, wiederverwendbare Funktionen für die 
+    Motoransteuerung.
+    * Beispiel: void setLeftMotorSpeed(int speed) und 
+                void setRightMotorSpeed(int speed).
+    * Die speed-Werte sollen von -255 (volle Geschwindigkeit rückwärts) bis
+      +255 volle Geschwindigkeit vorwärts) reichen und innerhalb der 
+      Funktionen in PWM-Werte und Richtungslogik umgesetzt werden.
+  * Die Hauptschleife (loop()) soll sauber bleiben und hauptsächlich Funktionen 
+    zur Abfrage des Controllers und zur Ansteuerung der Motoren aufrufen. 

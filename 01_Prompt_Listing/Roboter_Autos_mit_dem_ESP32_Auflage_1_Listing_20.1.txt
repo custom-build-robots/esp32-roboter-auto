@@ -1,0 +1,9 @@
+Erweitere das folgende Programm so, dass das Roboter-Auto eigenständig mithilfe des Ultraschallsensors HC-SR04 Hindernissen ausweicht. Ist der gemessene Abstand kleiner als 30 cm, dreht das Roboter-Auto mithilfe des Gyroskops um 45 bis 90 Grad in eine beliebige Richtung und fährt weiter. Es fängt an zu fahren, wenn ich am Game-Controller die Square-Taste gedrückt habe. Mit der X-Taste stoppt es. 
+Hier noch die Verkabelung des HC-SR04-Sensors im Roboter-Auto: 
+VCC: Spannungsversorgung wird mit 3,3 V verbunden. 
+Trig: Trigger-Eingang wird mit einem digitalen Ausgangs-Pin des ESP32 verbunden. Wir nehmen den GPIO 25 dafür. 
+Echo: Echo-Ausgang wird mit einem digitalen Eingangs-Pin des ESP32 verbunden. Wir 
+nehmen den noch freien GPIO 26. 
+GND: Masse (wird mit einem GND-Pin des ESP32 verbunden).
+Hier jetzt das Programm, das du bitte erweiterst:
+<Füge hier das Programm aus Abschnitt 18.5.1 komplett ein.> 

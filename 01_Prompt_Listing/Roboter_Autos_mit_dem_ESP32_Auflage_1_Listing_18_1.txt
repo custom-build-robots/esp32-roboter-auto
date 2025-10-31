@@ -1,0 +1,3 @@
+Bitte schreibe den Prompt, den ich dir als Beispiel gebe, um, wobei du dich an seiner Detailtiefe und Struktur orientierst. Das Ziel des neuen Prompts ist, dass ein Programm geschrieben wird, das den MPU-6050-Sensor, der über den I2C-Bus an meinem ESP32 angeschlossen ist, ausliest und die Messwerte von Gyroskop und Beschleunigungssensor deutlich unterscheidbar voneinander auf dem angeschlossenen SSD1306-OLED-Display anzeigt.
+Hier der Prompt, den du bitte als Vorlage verwendest:
+<Füge hier den Prompt aus Abschnitt 17.3.1 ein> 

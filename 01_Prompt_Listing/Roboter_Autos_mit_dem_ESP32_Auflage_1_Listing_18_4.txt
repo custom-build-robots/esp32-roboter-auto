@@ -1,0 +1,115 @@
+Du bist ein erfahrener KI-Programmierassistent und spezialisiert auf die Entwicklung von Embedded Systems mit dem ESP32-Mikrocontroller unter Verwendung der Arduino IDE und der Programmiersprache C++. Dein Fokus liegt auf der präzisen Motorsteuerung von Robotern, der Integration von I2C-basierten Inertial Measurement Units (IMUs) wie dem MPU-6050 und der Anbindung von Game-Controllern wie dem PS5-Controller über die Bluepad32-Bibliothek.
+**Aufgabe:**
+Erstelle ein eigenständiges C++-Programm für einen ESP32-Mikrocontroller (z. B. ESP32-WROOM-32), das ein Roboter-Auto präzise um 45° gegen den Uhrzeigersinn auf der Stelle dreht, wenn die "Square"-Taste auf einem verbundenen PS5-Controller gedrückt wird. Das Roboter-Auto soll jegliche Bewegung sofort stoppen, wenn die "X"-Taste auf dem PS5-Controller gedrückt wird. Das Programm dient ausschließlich dieser spezifischen Rotations- und Stoppfunktion und nicht einer allgemeinen Fernsteuerung des Roboter-Autos.
+* Detaillierte Anforderungen an das Programm:
+  * Zielhardware und Entwicklungsumgebung:
+    * Mikrocontroller: ESP32-Mikrocontroller.
+    * Entwicklungsumgebung: Arduino IDE.
+    * Programmiersprache: C++.
+  * Verwendete Bibliotheken (bitte gib an, welche Bibliotheken du verwendest):
+    * Für den PS5-Controller: Bluepad32-Bibliothek.
+    * Für den MPU-6050-Sensor: Adafruit-MPU6050-Bibliothek und die 
+      Basisbibliothek Adafruit Sensor.
+    * Für die I2C-Kommunikation: Wire-Bibliothek (Standard bei Arduino).
+  * Controller-Integration (PS5 via Bluepad32):
+    * Initialisiere Bluepad32, um eine Verbindung mit einem PS5-Controller 
+      herzustellen. Die grundlegende Einbindung kannst du dem "Programm 1" 
+      entnehmen, das ich dir zur Verfügung stelle.
+    * "Square"-Taste: Implementiere die Logik so, dass beim Drücken der "Square"-
+      Taste (oft als Viereck-Symbol dargestellt) des PS5-Controllers die 45°-
+      Drehung ausgelöst wird. Orientiere dich für das Auslesen der Taste an der 
+      Methode, die in meinem "Programm 1" für Tastenabfragen gezeigt wird (z. B. 
+      controller->x(), falls dies in meinem Beispiel der "Square"-Taste 
+      entspricht, oder controller->square(), falls dies die korrekte Funktion für 
+      die Viereck-Taste ist).
+    * "X"-Taste: Implementiere die Logik so, dass beim Drücken der "X"-Taste 
+      (Kreuz-Symbol) des PS5-Controllers das Roboter-Auto sofort stoppt. Verwende 
+      hierfür die passende Bluepad32-Funktion (.B. controller->cross() oder 
+      controller->isPressed(BP32_BUTTON_A)).
+  * Motoransteuerung für Rotation:
+    * Die Ansteuerung der Motoren (z. B. über einen L298N-Motortreiber) soll auf 
+      den Prinzipien basieren, die in "Programm 1" dargestellt sind (PWM-
+      Steuerung der IN-Pins).
+    * Implementiere eine Funktion, die das Roboter-Auto auf der Stelle gegen den 
+      Uhrzeigersinn dreht. Dies erfordert typischerweise, dass sich die Motoren 
+      auf den gegenüberliegenden Seiten in entgegengesetzte Richtungen drehen 
+      (z. B. linker Motor vorwärts, rechter Motor rückwärts).
+    * Implementiere eine Funktion, die beide Motoren sofort stoppt (Brake-
+      Funktion, falls vom Treiber unterstützt, ansonsten einfach Strom 
+      wegnehmen).
+  * Gyroskop-Integration (MPU-6050):
+    * Initialisiere den MPU-6050-Sensor über den I2C-Bus. Die Standard-Wire-
+      Library-Initialisierung (Wire.begin()) soll verwendet werden. Die 
+      Grundlagen zur MPU-6050-Initialisierung und zum Auslesen der Rohdaten 
+      kannst du "Programm 2" entnehmen.
+    * Lies kontinuierlich die Gyroskopwerte vom MPU-6050 aus, insbesondere die 
+      Winkelgeschwindigkeit um die Z-Achse (Gierrate). Diese ist entscheidend für 
+      die Erfassung der Drehung des Roboters.
+    * Berechne den aktuellen Drehwinkel des Roboters, indem du die 
+      Winkelgeschwindigkeit der Z-Achse über die Zeit integrierst. Formel: 
+      aktuellerWinkel += gierRateZ * deltaTimeInSeconds.
+    * Der integrierte Winkel soll zu Beginn jeder neuen 45°-Drehungssequenz 
+      (ausgelöst durch die "Square"-Taste) auf 0 zurückgesetzt werden, um eine 
+      relative Drehung um 45° von der aktuellen Ausrichtung zu gewährleisten.
+  * Rotationslogik:
+    * Start der Drehung: Wenn die "Square"-Taste gedrückt wird und keine Drehung 
+        bereits aktiv ist: 
+      * Setze den aktuellen relativen Drehwinkel auf 0.
+      * Starte die Motoren, um das Roboter-Auto gegen den Uhrzeigersinn zu 
+        drehen.
+      * Definiere einen Zieldrehwinkel von +45° (angenommen, positive 
+        Winkelzunahme bedeutet Drehung gegen den Uhrzeigersinn – passe dies ggf. 
+        an die Daten deines MPU-6050 und dessen Orientierung an).
+    * Überwachung der Drehung: Während die Drehung aktiv ist: 
+      * Aktualisiere kontinuierlich den aktuellen relativen Drehwinkel basierend 
+        auf den MPU-6050-Daten.
+    * Erreichen des Ziels und Deadzone: 
+      * Die Drehung soll gestoppt werden, sobald der erreichte relative 
+        Drehwinkel den Zielwert von 45° (gegen den Uhrzeigersinn) erreicht hat, 
+        unter Berücksichtigung einer Deadzone von ±5°.
+      * Das bedeutet, die Drehung gilt als abgeschlossen und die Motoren sollen 
+        stoppen, wenn der aktuelle Drehwinkel im Bereich von +40° bis +50° liegt. 
+        Um ein "Zittern" oder Überschwingen zu vermeiden, sollten die Motoren 
+        stoppen, sobald der Winkel in diesen Bereich eintritt (d. h. wenn der 
+        Winkel GEQ 40° bei einer Drehung in positive Richtung).
+      * Nach Erreichen des Ziels und Stoppen der Motoren soll das Auto 
+        stillstehen, bis eine neue Taste gedrückt wird.
+  * Stopp-Funktion:
+    * Wenn die "X"-Taste gedrückt wird: 
+      * Alle Motoraktivitäten müssen sofort beendet werden.
+      * Eine eventuell laufende Drehsequenz wird abgebrochen. Der Roboter 
+        verharrt in der aktuellen Position.
+  * Programmstruktur:
+    * Strukturiere den Code übersichtlich und füge Kommentare hinzu, um die Logik 
+      zu erklären.
+    * Verwende die setup()-Funktion für alle notwendigen Initialisierungen 
+      (serieller Monitor für Debugging-Ausgaben, I2C-Bus, MPU-6050-Sensor, 
+      Bluepad32-Controller-Verbindung, Motor-Pins und PWM-Kanäle).
+    * Verwende die loop()-Funktion für die kontinuierliche Abfrage des 
+      Controllers, das Auslesen des Sensors, die Winkelberechnung und die 
+      Steuerung der Motoren basierend auf dem aktuellen Zustand (z. B. Warten, 
+      Drehen).
+    * Das Programm soll komplett eigenständig sein und keine Elemente anderer 
+      Projekte (wie z. B. erweiterte Fernsteuerungslogik oder Displayausgaben, die 
+      nicht direkt für diese Aufgabe benötigt werden) enthalten, es sei denn, sie 
+      sind Teil der von mir bereitgestellten Beispielprogramme und für die 
+      Kernfunktion notwendig.
+  * Wichtige Hinweise für die Implementierung:
+    * Stelle sicher, dass die I2C-Kommunikation korrekt initialisiert wird.
+    * Implementiere eine einfache Fehlerbehandlung für die Initialisierung des 
+      MPU-6050 und der Bluepad32-Verbindung (z. B. Ausgabe auf dem seriellen 
+      Monitor, falls etwas fehlschlägt).
+    * Achte auf eine genaue Zeitmessung (z. B. mittels millis() oder micros()) für 
+      die korrekte Integration der Winkelgeschwindigkeit zur Bestimmung des 
+      Drehwinkels (deltaTime).
+    * Der resultierende Code soll direkt in der Arduino IDE kompilierbar und auf 
+      einen ESP32-Mikrocontroller hochladbar sein.
+Bitte stelle den vollständigen C++-Code für den ESP32 bereit, der die oben beschriebenen Anforderungen erfüllt.
+  * Platzhalter für meine Beispielprogramme:
+Ich werde dir an den folgenden Stellen meine zwei Beispielprogramme zur Verfügung stellen, die dir als Grundlage für die Motoransteuerung/Controller-Einbindung und die MPU-6050-Ansteuerung dienen:
+Platzhalter für Programm 1: Motoransteuerung und PS5-Controller-Einbindung
+< Füge hier jetzt den Programmcode aus Abschnitt 12.2 ein >
+Platzhalter für Programm 2: MPU-6050 Gyroskop auslesen
+< Füge hier jetzt den Programmcode aus Listing 18.2 ein >
+Platzhalter für Programm 3: Bluepad32_ESP32-Controller-Funktionen auslesen
+< Füge hier jetzt den Programmcode aus der Arduino IDE unter »File -> Examples -> Bluepad32_ESP32 -> Controller« ein > 

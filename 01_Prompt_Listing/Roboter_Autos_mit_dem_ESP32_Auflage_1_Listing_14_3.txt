@@ -1,0 +1,37 @@
+Du bist ein KI-Assistent und Experte für die Programmierung von ESP32-Mikrocontrollern mit der Arduino IDE und der Programmiersprache C++.
+** Hauptaufgabe **
+  * Schreibe ein C++-Programm zur Steuerung eines Roboter-Autos mit einem 
+    PS5-Controller.
+** Hardware-Spezifikationen **
+  * Mikrocontroller: ESP32-Mikrocontroller
+  * Motortreiber: L298N-H-Brücke 
+    * Motortreiber Eingang IN1 an ESP32 GPIO 13
+    * Motortreiber Eingang IN2 an ESP32 GPIO 12
+    * Motortreiber Eingang IN3 an ESP32 GPIO 27
+    * Motortreiber Eingang IN4 an ESP32 GPIO 33
+    * Motortreiber Eingänge ENA und ENB sind via Jumper auf HIGH gesetzt.
+  * Steuerung: PS5-Controller 
+    * Verbindung über die Bluepad32-Bibliothek 
+      (https://github.com/ricardoquesada/bluepad32).
+** Angeforderte Programm-Funktionalitäten **
+  * 1. Initialisierung: 
+    * Richte den ESP32 ein.
+    * Konfiguriere die Pins für die L298N-H-Brücke (IN1-IN4) als digitale 
+      Ausgänge.
+    * Initialisiere die Bluepad32-Bibliothek für die Verbindung mit dem PS5-
+      Controller.
+  * 2. Controller-Eingaben verarbeiten: 
+    * Lies die Eingaben vom linken Joystick des PS5-Controllers.
+    * Der rechte Joystick wird nicht verwendet.
+  * 3. Motorsteuerfunktionen: 
+    * Implementiere Funktionen, um das Auto zu bewegen (zum Beispiel 
+      setMotorSpeed(motor, speed, direction)).
+    * Steuere die Geschwindigkeit per PWM direkt über die Pins IN1 bis IN4.
+    * Die Lenkung soll wie bei einem Panzer erfolgen (Tank Steering).
+  * 4. Hauptschleife (loop): 
+    * Prüfe kontinuierlich die Controller-Eingaben.
+    * Aktualisiere die Motorzustände entsprechend.
+** Anforderungen an den Code **
+  * Strukturiere den Code mit klaren Kommentaren.
+  * Organisiere den Code in logische Funktionen (Initialisierung, 
+    Eingabeverarbeitung, Motorsteuerung). 

@@ -1,0 +1,14 @@
+Bitte schreibe den Prompt, den ich dir als Beispiel gebe, um, wobei du dich an seiner Detailtiefe und Struktur orientierst. Das Ziel des neuen Prompts ist, dass ein Programm geschrieben wird, das das Roboter-Auto um 45° gegen den Uhrzeigersinn dreht, wenn ich auf dem PS5-Controller die Square-Taste drücke. Das Roboter-Auto soll stoppen, wenn ich die X-Taste drücke. 
+Wichtig ist, dass ich mit diesem Programm das Roboter-Auto als solches nicht fernsteuern möchte. Es geht nur darum, dass sich das Roboter-Auto auf der Stelle um 45° dreht.
+Damit das Roboter-Auto nicht vor und zurück zittert beim Versuch, die 45° in der Drehung zu erreichen, implementiere bitte eine Deadzone von +/-5°. Als Beispiel bekommst du drei Programme von mir. Das erste Programm zeigt dir, wie du die Motoren im Roboter-Auto ansteuerst und den PS5-Controller einbindest, um die Tasten auszulesen. 
+Das zweite Programm zeigt dir, wie du den MPU-6050-Gyroskop-/-Beschleunigungssensor ausliest. Du musst dann mit diesen Werten die Winkelgeschwindigkeit berechnen, um das Roboter-Auto um exakt 45° zu drehen.
+Das dritte Programm zeigt dir ein Beispiel der Bibliothek Bluepad32, wie die Tasten des PS5-Controllers und Achsen ausgelesen werden können.
+Sieh bei deinem Antwort-Prompt jeweils einen Platzhalter für diese drei Programme vor. Denn ich würde diese dann bei deinem neu generierten Prompt genau an diesen Stellen einfügen, bevor ich den Prompt wiederum verwende. 
+Prompt-Beispiel:
+<Hier habe ich den Prompt aus Abschnitt 18.3.1 eingefügt>
+Hier kommt das 1. Programm:
+<Hier habe ich das Programm 1 aus Abschnitt 12.2 eingefügt>
+Hier kommt das 2. Programm:
+<Hier habe ich das Programm 2 aus Listing 18.2 eingefügt>
+Hier kommt das 3. Programm:
+<Hier habe ich das Programm 3 aus der Arduino IDE unter »File -> Examples -> Bluepad32_ESP32 -> Controller« eingefügt> 

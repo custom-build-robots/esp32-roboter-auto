@@ -1,0 +1,116 @@
+Du bist ein erfahrener KI-Programmierassistent, spezialisiert auf die Entwicklung von Embedded Systems mit dem ESP32-Mikrocontroller unter Verwendung der Arduino IDE und der Programmiersprache C++. Dein Fokus liegt auf der sauberen Integration von Sensoren, der Ansteuerung von Motoren (speziell L298N mit PWM auf INx-Pins), der Nutzung der Bluepad32-Bibliothek für Controller-Interaktion und der Ausgabe von Statusinformationen auf OLED-Displays.
+**Aufgabe:**
+Erstelle ein eigenständiges C++-Programm für ein ESP32-basiertes Roboter-Auto, das eine schwarze Linie auf hellem Untergrund autonom verfolgen kann. Das Programm soll die Logik aus zwei bereitgestellten Code-Beispielen intelligent kombinieren und erweitern. Ein PS5-Controller soll über die Bluepad32-Bibliothek verwendet werden, um den autonomen Linienfolgemodus zu starten und als Not-Aus zu stoppen.
+** Kontext und bereitgestellte Code-Beispiele: **
+Untenstehend findest du zwei Code-Abschnitte. Bitte nutze die relevanten Teile daraus als Grundlage für das neue Programm.
+Code-Beispiel 1: PS5-Controller-Fernsteuerung (ESP32-Roboter mit L298N via PWM auf INx-Pins und Bluepad32)
+* Fokus: 
+  * Motoransteuerung: Übernimm das Prinzip der Motoransteuerung mittels PWM 
+    direkt auf den INx-Pins des L298N-Treibers (wie in der Funktion setMotor(int 
+    side, int speedPct) und dem zugehörigen LEDC PWM Setup ledcSetup, 
+    ledcAttachPin gezeigt). Die ENA/ENB-Pins sind hierbei extern auf HIGH 
+    gejumpert. Die Pin-Definitionen (PIN_M_L_IN1 etc.) sind direkt zu verwenden.
+  * Bluepad32-Integration: Nutze die vorhandene Bluepad32-Initialisierung 
+    (BP32.setup(&onCtrlConnect, &onCtrlDisconnect)), die Verbindungs-/Trennungs-
+    Callbacks (onCtrlConnect, onCtrlDisconnect) und die Grundstruktur zur 
+    Verarbeitung von Controller-Daten (procGamepad oder eine ähnliche Callback-
+    Struktur).
+  * Tastenauswertung: Die Logik zum Auslesen von Tastendrücken (z. B. ctl->x() im 
+    Beispiel für LEDs) muss adaptiert werden, um definierte Tasten für "Start 
+    Linienfolge" und "Not-Aus" zu verwenden.
+* Nicht relevant aus diesem Code für das neue Programm: Die direkte 
+  achsenbasierte Fernsteuerung (axisX, axisY für Fahrmanöver) und die komplexe 
+  LED-Steuerung (Adafruit_NeoPixel, updLEDs).
+* OLED-Nutzung in diesem Code: Nimm zur Kenntnis, dass dieser Code bereits ein 
+  OLED-Display (SSD1306Wire) verwendet. Für das neue Programm sollen jedoch die 
+  Bibliotheken Adafruit_SSD1306 und Adafruit_GFX verwendet werden, wie im Kontext 
+  von Code-Beispiel 2 spezifiziert.
+  <Hier den Code aus Abschnitt 12.2 zur Roboter-Auto-Steuerung einfügen>
+Code-Beispiel 2: KY-033-Liniensensoren und OLED-Anzeige (Adafruit Libraries)
+* Fokus: 
+  * Übernimm die Logik zum Auslesen der drei KY-033-Sensoren, deren Pin-
+    Definitionen und die Interpretation ihrer digitalen Zustände (LOW = Linie 
+    erkannt, HIGH = keine Linie/Boden). Die Ansteuerung des SSD1306-OLED-Displays 
+    mit den Adafruit-Bibliotheken (Adafruit_SSD1306, Adafruit_GFX) inklusive der 
+    180-Grad-Rotation (für Über-Kopf-Montage) ist hier maßgeblich.
+  * Sensoranschlüsse (aus diesem Code zu übernehmen): 
+    Linker Sensor (Sensor 1) D0-Pin an GPIO 34
+    Mittlerer Sensor (Sensor 2) D0-Pin an GPIO 2
+    Rechter Sensor (Sensor 3) D0-Pin an GPIO 35
+    <Hier den Code aus Abschnitt 17.3 zum Auslesen des 
+    Linienfolgesensors einfügen>
+* Anforderungen an das neue Linienfolger-Programm:
+* Bluepad32-Controller-Integration (Start/Stopp):
+  * Initialisiere Bluepad32 wie in Code-Beispiel 1.
+  * Verwende die "Options"-Taste (oder BP32_BUTTON_OPTIONS) des PS5-Controllers, 
+    um den autonomen Linienfolgemodus zu starten.
+  * Verwende die "Kreuz"-Taste (BP32_BUTTON_CROSS) des PS5-Controllers als Not-
+    Aus, um den Linienfolgemodus sofort zu beenden und alle Motoren anzuhalten.
+  * Das Roboter-Auto soll initial im "Standby"-Modus sein.
+* Sensorintegration:
+  * Wie im Code-Beispiel 2 beschrieben (GPIOs 34, 2, 35; LOW = Linie).
+* Motorsteuerungslogik (Linienverfolgungsstrategie):
+  * Diese Logik wird nur aktiv, wenn der Linienfolgemodus über den PS5-Controller 
+    gestartet wurde.
+    Nutze die setMotor()-Funktion und das PWM-Setup aus Code-Beispiel 1.
+  * Implementiere eine grundlegende Strategie: 
+    * Mittlerer Sensor auf Linie: Fahre geradeaus 
+
+(z. B. setMotor(0, NORM_GESCHW); 
+      setMotor(1, NORM_GESCHW);).
+    * Linker Sensor auf Linie (Mitte und Rechts nicht): 
+      Korrigiere sanft nach links (z. B. setMotor(0, KORR_GESCHW_LANGSAM); 
+      setMotor(1, KORR_GESCHW_SCHNELL);).
+    * Rechter Sensor auf Linie (Mitte und Links nicht): 
+      Korrigiere sanft nach rechts (z. B. setMotor(0, KORR_GESCHW_SCHNELL); 
+      setMotor(1, KORR_GESCHW_LANGSAM);).
+  * (Optional) Nur linker äußerer Sensor auf Linie: 
+     Stärkere Linkskurve oder Drehung.
+  * (Optional) Nur rechter äußerer Sensor auf Linie: 
+     Stärkere Rechtskurve oder Drehung.
+  * Definiere Konstanten für die Geschwindigkeiten (z. B. NORM_GESCHW, 
+    KORR_GESCHW_LANGSAM, KORR_GESCHW_SCHNELL) und mache sie leicht anpassbar.
+* Kombinierte Start/Stopp-Logik und Sicherheitsfunktion:
+  Controller-Start: Nach Drücken der "Options"-Taste wechselt der Roboter in 
+      den "Linienfolge-Bereit"-Status.
+    * Startbedingung für Bewegung: Das Roboter-Auto beginnt erst mit der 
+      Linienverfolgung, wenn es sich im "Linienfolge-Bereit"-Status befindet UND 
+      mindestens der mittlere Sensor eine Linie erkennt.
+    * Stoppbedingung bei Linienverlust: Wenn während des autonomen Linienfolgens 
+      alle drei Sensoren gleichzeitig keine Linie mehr erkennen, sollen die 
+      Motoren mit setMotor(0, 0); setMotor(1, 0); anhalten. Der Roboter bleibt im 
+      Linienfolgemodus und versucht weiterzufahren, sobald eine Linie 
+      wiedererkannt wird.
+    * Controller-Not-Aus: Drücken der "Kreuz"-Taste stoppt sofort alle Motoren 
+      (setMotor(0, 0); setMotor(1, 0);) und beendet den autonomen 
+      Linienfolgemodus. Der Roboter kehrt in den "Standby"-Modus zurück.
+* Displayausgabe (OLED):
+  * Verwende das SSD1306-OLED-Display mit den Adafruit-Bibliotheken (
+    128×64, I2C, über Kopf montiert – 180 Grad Rotation sicherstellen).
+  * Zeige den aktuellen Modus des Roboters, Controller-Verbindungsstatus und 
+    Linienstatus an. Z.B.: 
+    * Ctrl: Verb. / Modus: Standby
+    * Ctrl: Verb. / Modus: LinieFolge LMS: [L][M][S] / Linie: Ja/Nein 
+      (LMS als 0/1 für Boden/Linie)
+    * Bei getrenntem Controller: Ctrl: Getrennt
+* Programmstruktur:
+  * Standalone-C++-Programm für Arduino IDE.
+  * Übersichtliche Kommentare.
+  * setup(): Initialisierung von Seriell, Bluepad32, Sensor-Pins, I2C, OLED 
+    (Adafruit), Motor-Pins und PWM-Kanälen.
+  * loop(): 
+    * Bluepad32-Events (BP32.update()) und Tastendrücke verarbeiten.
+    * Zustandsmanagement (Standby, Linienfolgen, Not-Aus).
+    * Nur im Zustand "Linienfolgen": 
+      Sensoren lesen, Entscheidungen treffen, Motoren steuern.
+    * Display aktualisieren.
+    * Vermeide lange delay()-Aufrufe.
+* Wichtige Hinweise für die Implementierung:
+  * Motor-Pins: Nutze die Pin-Definitionen und das LEDC-PWM-Setup für die Motoren 
+    aus Code-Beispiel 1.
+  * Bibliotheken: Bluepad32.h, Wire.h, Adafruit_GFX.h, Adafruit_SSD1306.h. Die 
+    LED-Steuerung (Adafruit_NeoPixel) aus Code-Beispiel 1 ist für dieses Projekt 
+    nicht erforderlich.
+  * Fehlerbehandlung: Grundlegende Fehlerprüfungen 
+    (Display, Controller-Verbindung).
+Bitte liefere den vollständigen C++-Code, der die oben genannten Anforderungen erfüllt.  

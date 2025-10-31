@@ -1,0 +1,60 @@
+Du bist ein erfahrener KI-Programmierassistent und spezialisiert auf die Entwicklung von Embedded Systems mit dem ESP32-Mikrocontroller unter Verwendung der Arduino IDE und der Programmiersprache C++. Dein Fokus liegt auf der sauberen Integration von I2C-basierten Inertial Measurement Units (IMUs) und -Displays.
+**Aufgabe:**
+Erstelle ein eigenständiges C++-Programm für einen ESP32-Mikrocontroller (z. B. ESP32-WROOM-32), das die folgenden Aufgaben erfüllt:
+* Sensorintegration (MPU-6050):
+  * Lies kontinuierlich Messwerte vom MPU-6050-Sensor. Dies umfasst 
+    Beschleunigungswerte (X, Y, Z), Gyroskopwerte (X, Y, Z) und den 
+    Temperaturwert.
+  * Der MPU-6050 ist über den I2C-Bus mit dem ESP32 verbunden. Verwende die 
+    Standard-Wire-Library-Initialisierung für den I2C-Bus.
+  * Nutze als gängige Bibliothek für den MPU-6050 die "Adafruit MPU6050"-
+    Bibliothek von Adafruit (zusammen mit der Basisbibliothek "Adafruit Sensor"), 
+    da ich diese bereits in meiner Arduino IDE installiert habe. Gib an, welche 
+    Bibliotheken du verwendest.
+  * Initialisiere den MPU-6050 mit Standardeinstellungen. (Fortgeschrittene 
+    Einstellungen wie Messbereiche oder Filterbandbreiten sind für diese Aufgabe 
+    optional und müssen nicht explizit implementiert werden.)
+* Displayausgabe (SSD1306 OLED):
+  * Zeige die vom MPU-6050 gemessenen Sensorwerte auf einem 
+    SSD1306-OLED-Display an.
+  * Das SSD1306-OLED-Display (128×64 Pixel) ist ebenfalls über den I2C-Bus mit
+    dem ESP32 verbunden und teilt sich den Bus mit dem MPU-6050.
+  * Verwende für das SSD1306-Display die "Adafruit_SSD1306"-Bibliothek zusammen 
+    mit der "Adafruit_GFX"-Bibliothek, da ich diese bereits in meiner Arduino IDE 
+    installiert habe. Gib an, welche Bibliotheken du verwendest.
+  * Die Ausgabe auf dem OLED soll klar beschriftet sein, um deutlich zwischen 
+    Beschleunigungs-, Gyroskop- und Temperaturwerten zu unterscheiden: 
+    * Beschleunigungswerte: Zeige "Beschl. (m/s^2):" als Überschrift und darunter 
+      die Werte für X, Y und Z jeweils mit einer Nachkommastelle (z. B. "X:1.2 
+      Y:3.4 Z:5.6").
+    * Gyroskopwerte: Zeige "Gyro (rad/s):" als Überschrift und darunter die Werte 
+      für X, Y und Z jeweils mit zwei Nachkommastellen (z. B. "X:0.12 Y:1.34 
+      Z:2.56").
+    * Temperaturwert: Zeige "Temp:" gefolgt vom Wert mit einer Nachkommastelle 
+      und der Einheit "C" (z. B. "Temp: 23.5 C").
+  * Aktualisiere die Anzeige etwa alle 100 Millisekunden.
+* Programmstruktur:
+  * Das Programm soll komplett eigenständig sein und keine Elemente anderer 
+    Projekte (wie Roboter-Auto-Steuerung, Bluepad32 etc.) enthalten. Es dient 
+    ausschließlich dem Test des MPU-6050-Sensors und der OLED-Anzeige.
+  * Strukturiere den Code übersichtlich mit Kommentaren.
+  * Verwende die setup()-Funktion für die Initialisierung des seriellen Monitors 
+    (für Debugging), des I2C-Busses, des MPU-6050-Sensors und des OLED-Displays.
+  * Verwende die loop()-Funktion, um wiederholt die Sensorwerte auszulesen und 
+    auf dem OLED-Display sowie optional zur Kontrolle auch auf dem seriellen 
+    Monitor auszugeben.
+* Wichtige Hinweise für die Implementierung:
+  * Stelle sicher, dass die I2C-Kommunikation korrekt initialisiert wird 
+    (Wire.begin()).
+  * Behandle mögliche Fehler bei der Initialisierung des Sensors oder Displays 
+    (z. B. durch eine klare Ausgabe auf dem seriellen Monitor und falls möglich 
+    auch auf dem OLED-Display, falls einer der Sensoren nicht gefunden wird).
+  * Der Code soll direkt in der Arduino IDE kompilierbar und auf einen ESP32-
+    Mikrocontroller hochladbar sein.
+* Beispielhafte Darstellung der gewünschten Ausgabe auf dem OLED-Display:
+Beschl. (m/s^2):
+X:1.2 Y:3.4 Z:-5.6
+Gyro (rad/s):
+X:0.12 Y:-1.34 Z:2.56
+Temp: 23.5 C
+Bitte liefere den vollständigen C++-Code für den ESP32, der die Messwerte des MPU-6050-Sensors ausliest und auf dem OLED-Display wie beschrieben anzeigt. 

@@ -1,0 +1,11 @@
+Bitte schreibe den folgenden Prompt um, mit dem Ziel, dass dieser statt des Lichtsensors drei Linienfolgesensoren **KY-033** verwendet. Diese drei Sensoren sind am ESP32 wie folgt angeschlossen.
+* Linker Sensor D0 an GPIO 15
+* Mittlerer Sensor D0 an GPIO 2
+* Rechter Sensor D0 an GPIO 4
+Auf dem OLED-Display, das im Roboter-Auto über Kopf eingebaut ist, soll der Status pro Sensor als Text angezeigt werden. 
+* Sensor 1: <status>
+* Sensor 2: <status>
+* Sensor 3: <status>
+Das Programm soll ebenfalls eigenständig funktionieren. Eine Steuerung der Motoren des Roboter-Autos ist für dieses Programm ebenfalls nicht vorgesehen.
+Hier der Prompt als Beispiel, den du bitte jetzt umschreibst.
+<Prompt aus Abschnitt 16.3.1 hier einfügen> 

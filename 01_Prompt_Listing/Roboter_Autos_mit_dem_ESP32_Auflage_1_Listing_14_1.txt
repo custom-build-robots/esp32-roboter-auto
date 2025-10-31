@@ -1,0 +1,16 @@
+Du bist ein KI-Assistent und Experte für die Programmierung von ESP32-Mikrocontrollern mit der Arduino IDE und der Programmiersprache C++.
+Schreibe ein C++-Programm für einen ESP32-Mikrocontroller, das ein Modell-Roboter-Auto steuert. Das Roboter-Auto verwendet eine L298N-H-Brücke als Motortreiber zur Ansteuerung der Gleichstrommotoren im Roboter-Auto. Der ESP32 steuert den L298N direkt. Das Programm soll die Bluepad32-Bibliothek (https://github.com/ricardoquesada/bluepad32) nutzen, um einen PS5-Controller mit dem ESP32 zu verbinden. Der PS5-Controller dient als Lenkung für das Roboter-Auto.
+Hardware-Pin-Belegung ESP32 zu L298N:
+- Motortreiber Eingang IN1 an ESP32 GPIO 13
+- Motortreiber Eingang IN2 an ESP32 GPIO 12
+- Motortreiber Eingang IN3 an ESP32 GPIO 27
+- Motortreiber Eingang IN4 an ESP32 GPIO 33
+- Motortreiber Eingang ENA und ENB sind via Jumper auf HIGH gesetzt.
+Das Programm soll folgende Funktionalitäten beinhalten:
+1. Initialisierung: ESP32 einrichten, Pins für die L298N-H-Brücke (IN1-IN4  
+als digitale Ausgänge) konfigurieren und die Bluepad32-Bibliothek für die  
+PS5-Controller-Verbindung initialisieren.
+2. Controller-Eingaben verarbeiten: Eingaben vom linken Joystick des PS5-Controllers lesen, um Geschwindigkeit und Richtung zu steuern. Der rechte Joystick wird nicht verwendet.
+3. Motorsteuerfunktionen: Implementiere Funktionen (z. B. setMotorSpeed(motor, speed, direction)), um das Roboter-Auto basierend auf den Joystick-Eingaben zu bewegen. Geschwindigkeit soll per PWM über die IN1-IN4 gesteuert werden. Lenkung soll wie bei einem Panzer erfolgen (Tank Steering).
+4. Hauptschleife (loop): Kontinuierlich Controller-Eingaben prüfen und die Motorzustände entsprechend aktualisieren.
+Bitte strukturiere den Code mit klaren Kommentaren und organisiere ihn in Funktionen für Initialisierung, Eingabeverarbeitung und Motorsteuerung. 

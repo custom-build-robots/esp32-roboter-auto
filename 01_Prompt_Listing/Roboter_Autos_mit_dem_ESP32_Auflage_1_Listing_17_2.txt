@@ -1,0 +1,56 @@
+Du bist ein erfahrener KI-Programmierassistent und spezialisiert auf die Entwicklung von Embedded Systems mit dem ESP32-Mikrocontroller unter Verwendung der Arduino IDE und der Programmiersprache C++. Dein Fokus liegt auf der sauberen Integration von Sensoren (digital und I2C) und I2C-Displays.
+**Aufgabe:**
+Erstelle ein eigenständiges C++-Programm für einen ESP32-Mikrocontroller (z. B. ESP32-WROOM-32), das die folgenden Aufgaben erfüllt:
+* Sensorintegration (Linienfolgesensoren):
+  * Lies kontinuierlich die digitalen Zustände von 
+    drei KY-033-Linienfolgesensoren.
+  * Die Sensoren sind wie folgt direkt mit den GPIO-Pins des ESP32 verbunden: 
+     * Linker Sensor (Sensor 1) D0-Pin an GPIO 34
+     * Mittlerer Sensor (Sensor 2) D0-Pin an GPIO 2
+     * Rechter Sensor (Sensor 3) D0-Pin an GPIO 35
+  * Interpretiere den digitalen Zustand jedes Sensors (HIGH/LOW). Ein LOW-Signal 
+    bedeutet typischerweise "Linie erkannt" (dunkel) und ein HIGH-Signal "keine 
+    Linie/heller Untergrund". Der Status soll entsprechend klar benannt werden 
+    (z. B. "Linie" / "Boden").
+* Displayausgabe (OLED):
+  * Zeige den Status jedes der drei KY-033-Sensoren auf einem 
+    SSD1306-OLED-Display (128×64 Pixel) an.
+  * Das SSD1306-OLED-Display ist über den I2C-Bus mit dem ESP32 verbunden. 
+    Verwende die Standard-I2C-Pins des ESP32 (typischerweise GPIO 21 für SDA und 
+    GPIO 22 für SCL, aber gestalte den Code so, dass dies ggf. leicht anpassbar 
+    ist, oder verwende die Standard-Wire-Library-Initialisierung).
+  * Wichtig: Das Display ist im Roboter-Auto über Kopf eingebaut. Die Anzeige 
+    muss daher um 180 Grad gedreht werden, sodass sie korrekt lesbar ist.
+  * Verwende die Bibliotheken "Adafruit_SSD1306" und "Adafruit_GFX", da diese 
+    bereits in meiner Arduino IDE installiert sind. Gib an, welche Bibliotheken 
+    du verwendest.
+  * Die Ausgabe auf dem OLED soll klar lesbar sein und den Status jedes Sensors 
+    anzeigen. Aktualisiere die Anzeige etwa jede Sekunde.
+* Programmstruktur:
+  * Das Programm soll komplett eigenständig sein und keine Elemente der Roboter-
+    Auto-Motorsteuerung (L298N, Bluepad32 etc.) enthalten. Es dient 
+    ausschließlich dem Test der KY-033-Sensoren und der OLED-Anzeige.
+  * Strukturiere den Code übersichtlich mit Kommentaren.
+  * Verwende die setup()-Funktion für die Initialisierung des seriellen Monitors, 
+    der GPIO-Pins für die KY-033-Sensoren (als Eingänge), des I2C-Busses und des 
+    OLED-Displays (inklusive der Drehung der Anzeige).
+  * Verwende die loop()-Funktion, um wiederholt die Sensorzustände auszulesen und 
+    auf dem OLED-Display sowie auf dem seriellen Monitor (für Debugging-Zwecke) 
+    auszugeben.
+* Wichtige Hinweise für die Implementierung:
+  * Stelle sicher, dass die I2C-Kommunikation für das Display korrekt 
+    initialisiert wird (Wire.begin()).
+  * Behandle mögliche Fehler bei der Initialisierung des Displays (z. B. durch 
+    eine Ausgabe auf dem seriellen Monitor).
+  * Konfiguriere die GPIO-Pins für die Sensoren als INPUT oder INPUT_PULLUP (je
+    nachdem, ob externe Pull-up-Widerstände verwendet werden – gehe im Zweifel 
+    von keinen externen Pull-ups aus und nutze interne, falls sinnvoll, oder 
+    einen einfachen Input, wenn das Modul dies bereits liefert).
+  * Der Code soll direkt in der Arduino IDE kompilierbar und auf einen ESP32-
+    Mikrocontroller hochladbar sein.
+* Beispielhafte Darstellung auf dem OLED-Display (korrekt gedreht):
+  * Sensor 1: Linie
+  * Sensor 2: keine Linie
+  * Sensor 3: Linie
+(Alternativ zu "keine Linie" könnte auch "Hell" verwendet werden, je nachdem, was verständlicher ist)
+Bitte liefere den vollständigen Code für den ESP32, die Ansteuerung der drei KY-033-Linienfolgesensoren und die Anzeige ihrer Messwerte auf dem gedrehten OLED-Display. 

@@ -1,0 +1,44 @@
+Du bist ein erfahrener KI-Programmierassistent und spezialisiert auf die Entwicklung von Embedded Systems mit dem ESP32-Mikrocontroller unter Verwendung der Arduino IDE und der Programmiersprache C++. Dein Fokus liegt auf der sauberen Integration von I2C-Sensoren und -Displays. 
+**Aufgabe:** 
+Erstelle ein eigenständiges C++-Programm für einen ESP32-Mikrocontroller (z. B. ESP32-WROOM-32), das die folgenden Aufgaben erfüllt: 
+1. **Sensorintegration:** 
+* Lies kontinuierlich Messwerte vom Umgebungslichtsensor **BH1750**. 
+* Der BH1750 ist über den I2C-Bus mit dem ESP32 verbunden. Verwende die 
+  Standard-I2C-Pins des ESP32 (typischerweise GPIO 21 für SDA und GPIO 22 für 
+  SCL, aber gestalte den Code so, dass dies ggf. leicht anpassbar ist, oder 
+  verwende die Standard-Wire-Library-Initialisierung). 
+* Nutze als gängige Bibliothek für den BH1750 die "BH1750"-Bibliothek von 
+  Christopher Laws, da ich diese bereits in meiner Arduino IDE installiert habe. 
+  Gib an, welche Bibliothek du verwendest. 
+* Konfiguriere den BH1750 für eine kontinuierliche Messung im Modus "Continuous 
+  High Resolution Mode" (1 Lux Auflösung). 
+2. **Displayausgabe:** 
+* Zeige die vom BH1750 gemessenen Lichtwerte (in Lux) auf einem **SSD1306-OLED-
+  Display** an. 
+* Das SSD1306-OLED-Display (128×64 Pixel) ist ebenfalls über den I2C-Bus mit dem 
+  ESP32 verbunden und teilt sich den Bus mit dem BH1750. 
+* Verwende eine gängige Bibliothek für das SSD1306-Display, z. B. die 
+  "Adafruit_SSD1306"-Bibliothek zusammen mit "Adafruit_GFX", da diese bereits in 
+  meiner Arduino IDE installiert sind. Gib an, welche Bibliotheken du verwendest. 
+* Die Ausgabe auf dem OLED soll klar lesbar sein, z. B. "Licht: XXX Lux". 
+  Aktualisiere die Anzeige etwa jede Sekunde. 
+3. **Programmstruktur:** 
+* Das Programm soll **komplett eigenständig** sein und keine Elemente der 
+  Roboter-Auto-Steuerung (L298N, Bluepad32 etc.) enthalten. Es dient 
+  ausschließlich dem Test des BH1750-Sensors und der OLED-Anzeige. 
+* Strukturiere den Code übersichtlich mit Kommentaren. 
+* Verwende die "setup()"-Funktion für die Initialisierung des seriellen 
+  Monitors, des I2C-Busses, des BH1750-Sensors und des OLED-Displays. 
+* Verwende die "loop()"-Funktion, um wiederholt die Lichtwerte auszulesen und 
+  auf dem OLED-Display sowie auf dem seriellen Monitor (für Debugging-Zwecke) 
+  auszugeben. 
+**Wichtige Hinweise für die Implementierung:** 
+* Stelle sicher, dass die I2C-Kommunikation korrekt initialisiert wird 
+  ("Wire.begin()"). 
+* Behandle mögliche Fehler bei der Initialisierung des Sensors oder Displays 
+  (z. B. durch eine Ausgabe auf dem seriellen Monitor). 
+* Der Code soll direkt in der Arduino IDE kompilierbar und auf einen 
+  ESP32-  Mikrocontroller hochladbar sein. 
+**Beispielhafte Darstellung auf dem OLED-Display:**
+Licht: 450 Lux
+Bitte liefere den vollständigen Code für den ESP32, den BH1750-Sensor und die Anzeige der Messwerte auf dem OLED-Display. 

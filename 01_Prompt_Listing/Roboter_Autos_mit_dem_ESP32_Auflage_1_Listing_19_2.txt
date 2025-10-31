@@ -1,0 +1,100 @@
+Du bist ein spezialisierter KI-Programmierassistent mit umfassender Erfahrung in der Entwicklung von Embedded Systems für den ESP32-Mikrocontroller unter Verwendung der Arduino IDE und der Programmiersprache C++. Deine Expertise umfasst die präzise Ansteuerung von Motoren, die Integration von I2C-basierten Sensoren wie Kompassmodulen (QMC5883L) und Gyroskopen (MPU-6050) sowie die Einbindung von Bluetooth-Controllern über die Bluepad32-Bibliothek.
+**Aufgabe:**
+Erstelle ein eigenständiges C++-Programm für einen ESP32-Mikrocontroller (z. B. ESP32-WROOM-32), das ein Roboter-Auto präzise auf der Stelle zu einer vorgegebenen Himmelsrichtung (Nord, Süd, Ost, West) ausrichtet.
+* Detaillierte Anforderungen:
+  * Ziel-Himmelsrichtung:
+    * Implementiere eine globale Variable im Programm 
+      (z. B. char targetCardinalDirection = 'N';), mit der die gewünschte 
+      Himmelsrichtung festgelegt wird. Gültige Werte sind 'N' (Nord), 'S' (Süd), 
+      'O' (Ost) und 'W' (West).
+    * Das Programm soll diese Variable nutzen, um den Zielwinkel für die 
+      Ausrichtung zu bestimmen (z. B. N=0°, O=90°, S=180°, W=270°).
+  * Kompasssensor (QMC5883L):
+    * Integriere einen QMC5883L-Kompasssensor zur Bestimmung der aktuellen 
+      Ausrichtung des Roboter-Autos.
+    * Der QMC5883L ist über den I2C-Bus mit dem ESP32 verbunden. Verwende die 
+      Standard-Wire-Library-Initialisierung.
+    * Verwende die Bibliothek QMC5883LCompass by MPrograms, da diese für das 
+      GY-271-Modul ideal ist. Diese Bibliothek ist oft besser für QMC5883L-Module 
+      geeignet, insbesondere da die I2C-Adresse 0x0D verwendet wird bei dem 
+      Kompassmodul von AZ-Delivery. Prüfe auch den folgenden Link für ein 
+      besseres Verständnis für die Programmierung: 
+      https://www.az-delivery.de/nl/blogs/azdelivery-blog-fur-arduino-und-
+      raspberry-pi/esp8266-als-kompass-in-micropython.
+    * Verwende eine gängige und gut dokumentierte Bibliothek für den QMC5883L 
+      (z. B. eine von Adafruit, Sparkfun oder eine andere weit verbreitete 
+      Alternative). Gib klar an, welche Bibliothek du verwendest.
+    * Initialisiere den Sensor. Eine Kalibrierung des Magnetometers ist für diese 
+      erste Version optional, aber erwähne im Code als Kommentar, wo eine solche 
+      typischerweise erfolgen könnte.
+    * Lies kontinuierlich den Heading-Wert (Azimut) vom Sensor aus.
+  * PS5-Controller-Integration (Bluepad32):
+    * Nutze die Bluepad32-Bibliothek, um einen PS5-Controller einzubinden. Die 
+      grundlegende Einbindung (Verbindungsaufbau, Auslesen der Tasten) soll sich 
+      an dem von mir bereitgestellten Beispielcode orientieren.
+    * Square-Taste (controller->x()): Wenn diese Taste gedrückt wird, soll das 
+      Roboter-Auto mit der Ausrichtung auf die in targetCardinalDirection 
+      definierte Himmelsrichtung beginnen. Der aktuelle Drehwinkel soll vor 
+      Beginn der Drehung (konzeptionell) auf 0 zurückgesetzt werden oder die 
+      Drehung relativ zur aktuellen Position erfolgen.
+    * X-Taste (controller->a()): Wenn diese Taste gedrückt wird, soll jegliche 
+      laufende Drehbewegung des Roboter-Autos sofort gestoppt werden.
+  * Motorsteuerung und Rotation:
+    * Die Ansteuerung der Motoren für die Drehung auf der Stelle (ein Motor 
+      vorwärts, der andere rückwärts mit gleicher Geschwindigkeit) soll auf den 
+      Funktionen basieren, die im folgenden von mir bereitgestellten Beispielcode 
+      gezeigt werden (insbesondere Funktionen wie setMotorPower, rotateRobot, 
+      stopRobot). Du musst diese Logik anpassen, um basierend auf dem Kompass-
+      Heading zu drehen.
+    * Das Roboter-Auto soll sich so lange drehen, bis die aktuelle Ausrichtung 
+      (vom QMC5883L) der Ziel-Himmelsrichtung entspricht.
+    * Das Roboter-Auto soll ebenfalls stoppen, wenn die X-Taste am Controller 
+      gedrückt wird.
+    * Keine Fernsteuerung: Dieses Programm dient ausschließlich der
+      automatischen Ausrichtung auf der Stelle. Es soll keine Funktionen zur 
+      allgemeinen Fernsteuerung des Roboter-Autos (vorwärts, rückwärts fahren 
+      etc.) implementiert werden.
+  * Deadzone für präzises Stoppen:
+    * Um ein "Zittern" oder ständiges Über-/Unterschießen der Ziel-
+      Himmelsrichtung zu vermeiden, implementiere eine Deadzone von +/- 5 Grad.
+     Das bedeutet, wenn die aktuelle Ausrichtung innerhalb von Zielwinkel -5° 
+     und Zielwinkel +5° liegt, gilt die Himmelsrichtung als erreicht, und das 
+     Roboter-Auto soll die Drehung stoppen.
+  * Gyroskop-Unterstützung 
+    (MPU-6050 - optional, aber empfohlen für verbesserte Drehung):
+    * Das beigefügte Beispielprogramm zeigt, wie ein MPU-6050-Gyroskop/-
+      Beschleunigungssensor ausgelesen wird.
+    * Du kannst die Gyroskopdaten (insbesondere den Gierratenwert um die Z-Achse, 
+      g_event.gyro.z) des MPU-6050 nutzen, um die Drehbewegung des Roboters zu 
+      kontrollieren und zu stabilisieren (z. B. für eine gleichmäßigere 
+      Drehgeschwindigkeit oder um die Drehung präziser zu stoppen, indem die 
+      aktuelle Winkelgeschwindigkeit berücksichtigt wird). Die primäre Quelle für 
+      die absolute Ausrichtung bleibt der QMC5883L. Die Integration des Gyroskops 
+      für die Drehkontrolle ist ein wichtiger Aspekt.
+  * Programmstruktur:
+    * Strukturiere den Code übersichtlich mit Kommentaren in C++.
+    * Verwende die setup()-Funktion für die Initialisierung des seriellen 
+      Monitors (für Debugging-Ausgaben), des I2C-Busses, des QMC5883L-Sensors, 
+      des MPU-6050 (falls zur Drehkontrolle verwendet), der Bluepad32-Bibliothek 
+      und der Motor-PWM-Pins.
+    * Verwende die loop()-Funktion, um wiederholt Controller-Eingaben zu prüfen, 
+      Sensordaten (QMC5883L und optional MPU-6050) auszulesen und die Rotations-
+      logik des Roboter-Autos zu steuern.
+    * Implementiere eine einfache Zustandslogik (z. B. IDLE, ROTATING_TO_TARGET).
+  * Wichtige Hinweise für die Implementierung:
+    * Stelle sicher, dass die I2C-Kommunikation korrekt initialisiert wird 
+     (Wire.begin()).
+    * Behandle mögliche Fehler bei der Initialisierung der Sensoren (z. B. durch 
+      eine klare Ausgabe auf dem seriellen Monitor, falls ein Sensor nicht 
+      gefunden wird).
+    * Gib auf dem seriellen Monitor grundlegende Statusinformationen aus (z. B. 
+      aktueller Heading-Wert, Ziel-Heading, Status der Rotation, gedrückte 
+      Controller-Tasten).
+    * Der Code soll direkt in der Arduino IDE kompilierbar und auf einen 
+      ESP32-Mikrocontroller hochladbar sein.
+Programmbeispiel MPU-6050 Gyroskop auslesen und Roboter-Auto drehen
+<Füge hier das Programm aus Abschnitt 18.5.1 ein>
+Erläuterung des GY-271-Kompassmoduls mit Programmbeispielen.
+https://cdn.shopify.com/s/files/1/1509/1638/files/AZ103_A7-6_DE_B07PGKR5D2.pdf
+* Zusammenfassendes Ziel:
+Liefere den vollständigen C++-Code für den ESP32, der das Roboter-Auto mithilfe des QMC5883L-Kompasssensors und eines PS5-Controllers auf eine definierte Himmelsrichtung ausrichtet, unter Berücksichtigung der Deadzone und der Möglichkeit, die Drehung durch das MPU-6050-Gyroskop zu unterstützen und zu verfeinern. Die Motoransteuerung und Controller-Interaktion sollen auf dem von mir bereitgestellten Code basieren. 
